@@ -13,38 +13,44 @@ use Illuminate\Support\Facades\Hash;
 class AppointmentController extends Controller
 {
     // Store the appointment data after successful payment
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'        => 'required|string',
-            'email'       => 'required|email',
-            'phonenumber' => 'required|string',
-            'gender'      => 'required|string',
-            'select'      => 'required',
-            'subservice'  => 'required',
-            'time'        => 'required',
-            'date'        => 'required|date',
-            'message'     => 'nullable|string',
-            'payment_id'  => 'required|string',
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'name'        => 'required|string',
+        'email'       => 'required|email',
+        'phonenumber' => 'required|string',
+        'gender'      => 'required|string',
+        'select'      => 'required',
+        'subservice'  => 'required',
+        'time'        => 'required',
+        'date'        => 'required|date',
+        'message'     => 'nullable|string',
+        'payment_id'  => 'required|string',
+    ]);
 
-        // Save booking in DB
-        Appointment::create([
-            'name'         => $request->name,
-            'email'        => $request->email,
-            'phonenumber'  => $request->phonenumber,
-            'gender'       => $request->gender,
-            'select'   => $request->select,
-            'subservice'=> $request->subservice,
-            'time'         => $request->time,
-            'date'         => $request->date,
-            'message'      => $request->message ?? '',
-            'payment_id'   => $request->payment_id,
-            'price'=>$request->price,
-        ]);
+    // ✅ Save appointment in DB
+    Appointment::create([
+        'name'         => $request->name,
+        'email'        => $request->email,
+        'phonenumber'  => $request->phonenumber,
+        'gender'       => $request->gender,
+        'select'       => $request->select,
+        'subservice'   => $request->subservice,
+        'time'         => $request->time,
+        'date'         => $request->date,
+        'message'      => $request->message ?? '',
+        'payment_id'   => $request->payment_id,
+        'price'        => $request->price,
+    ]);
 
-        return redirect('/thank-you')->with('success', 'Appointment booked successfully!');
-    }
+    // ✅ Send confirmation email to user
+    Mail::to($request->email)->send(new AppointmentMail(
+        $request->email,
+        $request->message
+    ));
+
+    return redirect('/thank-you')->with('success', 'Appointment booked successfully and confirmation email sent!');
+}
 
    
 

@@ -90,29 +90,24 @@
     </style>
 </head>
 <body>
-
 <div class="form-container">
     <h2>Forgot Password</h2>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
 
     <form method="POST" action="{{ url('/send-otp') }}">
         @csrf
-
         <div class="form-group mb-3">
-            <input type="email" name="email" class="form-control" placeholder="Enter Email" required>
+            <input type="email" name="email" class="form-control" placeholder="Enter your registered email" required>
             @error('email') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
-
-        <button type="submit" class="btn">Send OTP</button>
+        <button type="submit" class="btn btn-warning w-100">Send OTP</button>
     </form>
-
-    <div class="mt-3 text-muted">
-        <a href="{{ url('/login') }}">Back to Login</a>
-    </div>
 </div>
-
 </body>
 </html>

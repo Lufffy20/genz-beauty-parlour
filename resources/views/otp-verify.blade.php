@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Verify OTP & Reset Password</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/style.css"> <!-- Optional if shared -->
+    <link rel="stylesheet" href="/css/style.css">
+
     <style>
         body {
-            background-image: url('/images/login-bg.jpg'); /* Update with your background image */
+            background-image: url('/images/login-bg.jpg');
             background-size: cover;
             background-position: center;
             height: 100vh;
@@ -27,38 +28,6 @@
             border-radius: 10px;
             box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .form-container:hover {
-            transform: scale(1.02);
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            padding: 12px;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .form-control:focus {
-            border-color: #ffcc00 !important;
-            box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
-            outline: none;
-        }
-
-        .text-danger {
-            font-size: 0.9rem;
-            display: block;
-            text-align: left;
-            margin-top: 5px;
         }
 
         .btn {
@@ -77,22 +46,32 @@
             transform: scale(1.05);
         }
 
-        .text-muted a {
-            color: #007bff;
-            text-decoration: none;
-            transition: color 0.3s ease-in-out;
+        .text-danger {
+            font-size: 0.9rem;
+            text-align: left;
         }
 
-        .text-muted a:hover {
-            color: #ff9900;
-            text-decoration: underline;
+        .note {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn-resend {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-resend:hover {
+            background-color: #e0e0e0;
         }
     </style>
 </head>
 <body>
 
 <div class="form-container">
-    <h2>Enter OTP & New Password</h2>
+    <h2>{{ session('show_password_form') ? 'Reset Password' : 'Enter OTP' }}</h2>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -101,10 +80,22 @@
     <form method="POST" action="{{ url('/verify-otp') }}">
         @csrf
 
+        @if(!session('show_password_form'))
         <div class="form-group mb-3">
-            <input type="text" name="otp" class="form-control" placeholder="Enter OTP" required>
+            <input type="text" name="otp" class="form-control" placeholder="Enter OTP" value="{{ old('otp') }}" required>
             @error('otp') <span class="text-danger">{{ $message }}</span> @enderror
         </div>
+
+        <div class="note">OTP is valid for only 1 minute.</div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn mb-2">Verify OTP</button>
+            <a href="{{ url('/resend-otp') }}" class="btn">Resend OTP</a>
+        </div>
+        @endif
+
+        @if(session('show_password_form'))
+        <input type="hidden" name="otp" value="{{ old('otp') }}">
 
         <div class="form-group mb-3">
             <input type="password" name="password" class="form-control" placeholder="New Password" required>
@@ -116,11 +107,8 @@
         </div>
 
         <button type="submit" class="btn">Reset Password</button>
+        @endif
     </form>
-
-    <div class="mt-3 text-muted">
-        <a href="{{ url('/login') }}">Back to Login</a>
-    </div>
 </div>
 
 </body>

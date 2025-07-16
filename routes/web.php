@@ -1,5 +1,7 @@
 <?php
 
+use App\Mail\AppointmentMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\Validatecontroller;
@@ -26,7 +28,6 @@ use App\Models\Userdetail;
 use App\Http\Controllers\LocationController;
 use App\Models\Location; 
 use App\Http\Controllers\AuthController;
-
 
 
 //pages
@@ -154,6 +155,10 @@ Route::get('userupdate1/{id}', [ServiceController::class, 'update'])->name('user
 
 
 //login
+
+// Email Verification
+Auth::routes(['verify' => true]);
+
 Route::get('/login',[Validatecontroller1::class,'login'])->name('login');
 Route::post('/storedata2',[Validatecontroller2::class,'store2']);
 Route::post('/logout',[Validatecontroller1::class,'logout'])->name('logout');
@@ -161,6 +166,14 @@ Route::post('/logout',[Validatecontroller1::class,'logout'])->name('logout');
 //signup
 Route::get('/signup',[LayoutController::class,'signup'])->name('signuppage');
 Route::post('/storedata1',[Validatecontroller1::class,'store1']);
+
+Route::post('/login-user', [Validatecontroller1::class, 'loginUser'])->name('login.user');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    });
+});
 
 //for nearest appointment
 Route::get('/nearest-parlors', [ParlorController::class, 'findNearestParlors']);
@@ -308,6 +321,7 @@ Route::delete('locationshow/{location}', [Layoutcontroller::class, 'destroy1'])-
 //login forget pass
 
 
+
 Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']);
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
@@ -316,6 +330,8 @@ Route::get('/forgot-password', [AuthController::class, 'showOtpRequestForm']);
 Route::post('/send-otp', [AuthController::class, 'sendOtp']);
 Route::get('/verify-otp', [AuthController::class, 'showOtpVerifyForm']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtpAndResetPassword']);
+Route::get('/resend-otp', [AuthController::class, 'resendOtp']);
+
 
 
 //newsleter 

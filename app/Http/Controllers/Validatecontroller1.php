@@ -3,50 +3,75 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\login;
 use App\Models\signup;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Events\Registered;
 
 class Validatecontroller1 extends Controller
 {
+    // Show login form
     public function login()
     {
         return view('login');
     }
 
-    //Signup code to store data 
-    public function store1(Request $request){
+    // Show signup form (optional)
+    public function signupForm()
+    {
+        return view('signup');
+    }
+
+    // Handle Signup
+    public function store1(Request $request)
+    {
         $request->validate([
-            'email'=>'required',
-            'password'=>'required',
+            'name' => 'required',
+            'email' => 'required|email|unique:signups,email',
+            'password' => 'required|min:6',
         ]);
 
-        
-        Log::info('Login Attempt:', ['email' => $request->email , 'password' => $request->password]);
-          
+        $signup = new signup();
+        $signup->name = $request->name;
+        $signup->email = $request->email;
+        $signup->password = Hash::make($request->password);
+        $signup->save();
+
+        // 🔔 Send email verification
+        event(new Registered($signup));
+
+        return redirect('/login')->with('message', 'Signup successful! Please verify your email before logging in.');
+    }
+
+    // Handle Login
+    public function loginUser(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         $credentials = $request->only('email', 'password');
 
-        $signup =new signup();
-        $signup->name=$request['name'];
-        $signup->email=$request['email'];
-        $signup->password=Hash::make($request->input('password'));
-        $signup->save();
-    return redirect('/login');
-}
-public function logout(Request $request)
-    {
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-        // $request->session()->forget('customer_id');
-        // $request->session()->forget('success');
-        // $request->session()->forget('username');
+            if ($user->hasVerifiedEmail()) {
+                return redirect('/dashboard');
+            } else {
+                Auth::logout();
+                return redirect('/login')->with('error', 'Please verify your email before logging in.');
+            }
+        }
+
+        return redirect('/login')->with('error', 'Invalid credentials.');
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
         Auth::logout();
         return redirect('/');
     }
-
 }
-
-
