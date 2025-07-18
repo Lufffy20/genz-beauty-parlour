@@ -310,8 +310,12 @@
                     <h4 class="package-title">{{ $fp->package_name }}</h4>
                     <p class="package-description">{{ $fp->description }}</p>
                     <p class="package-price fw-bold text-success">Price: ₹{{ number_format($fp->price, 2) }}</p>
-                    <a href="{{ url('/allbooking/' . $fp->id) }}" class="btn btn-yellow w-100">Book Now</a>
-                    <a href="{{ route('cart.add', $fp->id) }}" class="btn btn-yellow w-100">Add to Cart</a>
+             @php
+    $isLoggedIn = Auth::check();
+@endphp
+
+<a href="{{ $isLoggedIn ? url('/allbooking/' . $fp->id) : route('login') }}" class="btn btn-yellow w-100">Book Now</a>
+<a href="{{ $isLoggedIn ? route('cart.add', $fp->id) : route('login') }}" class="btn btn-yellow w-100">Add to Cart</a>
                 </div>
             </div>
             @endforeach

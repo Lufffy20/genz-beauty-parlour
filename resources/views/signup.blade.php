@@ -97,27 +97,35 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <form action="{{ url($url) }}" method="POST">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form action="{{ url('/storedata1') }}" method="POST">
             @csrf
 
             <div class="form-group mb-3">
-                <input type="text" class="form-control" placeholder="Full Name" name="name" value="{{ old('name', $user->name ?? '') }}" required>
+                <input type="text" class="form-control" placeholder="Full Name" name="name"
+                       value="{{ old('name', $user->name ?? '') }}" required>
                 <span class="text-danger">@error('name') {{ $message }} @enderror</span>
             </div>
 
             <div class="form-group mb-3">
-                <input type="email" class="form-control" placeholder="Email" name="email" value="{{ old('email', $user->email ?? '') }}" required>
+                <input type="email" class="form-control" placeholder="Email" name="email"
+                       value="{{ old('email', $user->email ?? '') }}" required>
                 <span class="text-danger">@error('email') {{ $message }} @enderror</span>
             </div>
 
-            @if(!isset($user))
-            <div class="form-group mb-3">
-                <input type="password" class="form-control" placeholder="Password" name="password" required>
-                <span class="text-danger">@error('password') {{ $message }} @enderror</span>
-            </div>
+            @if (!isset($user))
+                <div class="form-group mb-3">
+                    <input type="password" class="form-control" placeholder="Password" name="password" required>
+                    <span class="text-danger">@error('password') {{ $message }} @enderror</span>
+                </div>
             @endif
 
-            <button type="submit" class="btn">Sign Up</button>
+            <button type="submit" class="btn">Send Verification Code</button>
 
             <div class="toggle-form">
                 <p>Already have an account? <a href="{{ url('/login') }}">Login</a></p>

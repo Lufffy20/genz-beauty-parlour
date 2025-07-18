@@ -167,6 +167,10 @@ Route::post('/logout',[Validatecontroller1::class,'logout'])->name('logout');
 Route::get('/signup',[LayoutController::class,'signup'])->name('signuppage');
 Route::post('/storedata1',[Validatecontroller1::class,'store1']);
 
+Route::post('/verify-code', [Validatecontroller1::class, 'verifyCode'])->name('code.verify');
+Route::get('/verify-code', [Validatecontroller1::class, 'showCodeForm'])->name('code.form');
+
+
 Route::post('/login-user', [Validatecontroller1::class, 'loginUser'])->name('login.user');
 
 Route::middleware(['auth', 'verified'])->group(function () {

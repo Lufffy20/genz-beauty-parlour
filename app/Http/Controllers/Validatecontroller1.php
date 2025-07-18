@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\signup;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Request;
+use App\Mail\VerificationCodeMail;
+use App\Models\signup;
+use Carbon\Carbon;
 
 class Validatecontroller1 extends Controller
 {
@@ -17,34 +19,72 @@ class Validatecontroller1 extends Controller
         return view('login');
     }
 
-    // Show signup form (optional)
+    // Optional: Show signup form (in case you need it)
     public function signupForm()
     {
         return view('signup');
     }
 
-    // Handle Signup
+    // Handle Signup - send OTP
     public function store1(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'email' => 'required|email|unique:signups,email',
             'password' => 'required|min:6',
         ]);
 
-        $signup = new signup();
-        $signup->name = $request->name;
-        $signup->email = $request->email;
-        $signup->password = Hash::make($request->password);
-        $signup->save();
+        $code = rand(100000, 999999);
 
-        // 🔔 Send email verification
-        event(new Registered($signup));
+        // Store user data & code in session
+        Session::put('user_data', [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+        ]);
+        Session::put('verify_code', $code);
 
-        return redirect('/login')->with('message', 'Signup successful! Please verify your email before logging in.');
+        // Send code to email
+        Mail::to($request->email)->send(new VerificationCodeMail($code));
+
+        return redirect()->route('code.form')->with('message', 'Verification code sent to your email.');
     }
 
-    // Handle Login
+    // Show code input form
+    public function showCodeForm()
+    {
+        return view('verify-code');
+    }
+
+    // ✅ Handle OTP verification and user creation
+    public function verifyCode(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|digits:6',
+        ]);
+
+        $storedCode = Session::get('verify_code');
+        $userData = Session::get('user_data');
+
+        if ($request->code == $storedCode && $userData) {
+            $signup = new signup();
+            $signup->name = $userData['name'];
+            $signup->email = $userData['email'];
+            $signup->password = Hash::make($userData['password']);
+            $signup->email_verified_at = Carbon::now(); // ✅ Mark email as verified
+            $signup->save();
+
+            // Clear session
+            Session::forget('verify_code');
+            Session::forget('user_data');
+
+            return redirect('/login')->with('success', 'Signup successful. You can now login.');
+        } else {
+            return back()->withErrors(['code' => 'Incorrect verification code.']);
+        }
+    }
+
+    // Handle Login with email verification check
     public function loginUser(Request $request)
     {
         $request->validate([
@@ -57,8 +97,8 @@ class Validatecontroller1 extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->hasVerifiedEmail()) {
-                return redirect('/dashboard');
+            if ($user->email_verified_at !== null) {
+                return redirect('/');
             } else {
                 Auth::logout();
                 return redirect('/login')->with('error', 'Please verify your email before logging in.');

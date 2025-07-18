@@ -87,52 +87,50 @@ class AuthController extends Controller
     // Step-by-step OTP verification + password reset
     public function verifyOtpAndResetPassword(Request $request) {
         // Step 1: OTP verification (password not yet submitted)
-        if (!$request->filled('password')) {
-            $request->validate(['otp' => 'required']);
+     if (!$request->filled('password')) {
+    $request->validate(['otp' => 'required']);
 
-            // OTP Expiry Check
-            if (now()->greaterThan(Session::get('otp_expires_at'))) {
-                return back()->withErrors(['otp' => 'OTP has expired. Please resend OTP.']);
-            }
+    // OTP Expiry Check
+    if (now()->greaterThan(Session::get('otp_expires_at'))) {
+        return back()->withErrors(['otp' => 'OTP has expired. Please resend OTP.']);
+    }
 
-            if ($request->otp != Session::get('otp')) {
-                return back()->withErrors(['otp' => 'Invalid OTP']);
-            }
+    if ($request->otp != Session::get('otp')) {
+        return back()->withErrors(['otp' => 'Invalid OTP']);
+    }
 
-            return back()
-                ->with('success', 'OTP verified! Please enter your new password.')
-                ->withInput(['otp' => $request->otp])
-                ->with('show_password_form', true);
-        }
+    // ✅ Mark OTP as verified
+    Session::put('otp_verified', true);
+
+    return back()
+        ->with('success', 'OTP verified! Please enter your new password.')
+        ->withInput(['otp' => $request->otp])
+        ->with('show_password_form', true);
+}
+
 
         // Step 2: Password Reset
-        $request->validate([
-            'otp' => 'required',
-            'password' => 'required|min:6|confirmed'
-        ]);
-
-        // Re-check OTP validity
-        if (now()->greaterThan(Session::get('otp_expires_at'))) {
-            return back()->withErrors(['otp' => 'OTP has expired. Please resend OTP.']);
-        }
-
-        if ($request->otp != Session::get('otp')) {
-            return back()->withErrors(['otp' => 'Invalid OTP']);
-        }
+      $request->validate([
+    'otp' => 'required',
+    'password' => 'required|min:6|confirmed'
+]);
+      // ✅ Check if OTP was verified before
+if (!Session::get('otp_verified')) {
+    return redirect('/verify-otp')->withErrors(['otp' => 'OTP not verified or expired.']);
+}
 
         $user = signup::where('email', Session::get('otp_email'))->first();
-        if (!$user) {
-            return back()->withErrors(['otp' => 'User not found.']);
-        }
+if (!$user) {
+    return back()->withErrors(['otp' => 'User not found.']);
+}
 
         $user->password = Hash::make($request->password);
-        $user->save();
+$user->save();
 
-        Session::forget('otp');
-        Session::forget('otp_email');
-        Session::forget('otp_expires_at');
+// 🔐 Clear session
+Session::forget(['otp', 'otp_email', 'otp_expires_at', 'otp_verified']);
 
-        return redirect('/login')->with('success', 'Password has been reset successfully.');
+return redirect('/login')->with('success', 'Password has been reset successfully.');
     }
 
     // Resend OTP
