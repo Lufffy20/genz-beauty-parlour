@@ -31,7 +31,7 @@ class Validatecontroller1 extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:signups,email',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         $code = rand(100000, 999999);

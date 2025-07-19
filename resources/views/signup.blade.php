@@ -6,7 +6,6 @@
     <title>GenZ | Login & Signup</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-
     <style>
         body {
             background-image: url('{{ asset('images/login-bg.jpg') }}');
@@ -48,8 +47,18 @@
             outline: none;
         }
 
-        .text-danger {
-            font-size: 0.9rem;
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #555;
+            font-size: 18px;
         }
 
         .form-container .btn {
@@ -119,9 +128,15 @@
             </div>
 
             @if (!isset($user))
-                <div class="form-group mb-3">
-                    <input type="password" class="form-control" placeholder="Password" name="password" required>
+                <div class="form-group mb-3 password-wrapper">
+                    <input type="password" id="password" class="form-control" placeholder="Password" name="password" required>
+                    <span class="toggle-password" onclick="togglePassword('password')">👁</span>
                     <span class="text-danger">@error('password') {{ $message }} @enderror</span>
+                </div>
+
+                <div class="form-group mb-3 password-wrapper">
+                    <input type="password" id="confirm_password" class="form-control" placeholder="Re-enter Password" name="password_confirmation" required>
+                    <span class="toggle-password" onclick="togglePassword('confirm_password')">👁</span>
                 </div>
             @endif
 
@@ -132,6 +147,13 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+    </script>
 
 </body>
 </html>

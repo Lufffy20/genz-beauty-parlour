@@ -55,6 +55,20 @@
             outline: none;
         }
 
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #555;
+            font-size: 18px;
+        }
+
         .text-danger {
             font-size: 0.9rem;
             display: block;
@@ -141,8 +155,9 @@
                 @enderror
             </div>
 
-            <div class="form-group mt-3">
-                <input type="password" class="form-control" placeholder="Password" name="password" required>
+            <div class="form-group mt-3 password-wrapper">
+                <input type="password" id="password" class="form-control" placeholder="Password" name="password" required>
+                <span class="toggle-password" onclick="togglePassword()">👁</span>
                 @error('password')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
@@ -157,5 +172,16 @@
             <a href="{{ url('/forgot-password') }}" class="forgot-password">Forgot Password?</a>
         </form>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+            } else {
+                passwordField.type = 'password';
+            }
+        }
+    </script>
 </body>
 </html>
