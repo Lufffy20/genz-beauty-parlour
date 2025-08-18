@@ -14,12 +14,8 @@ class signup extends Authenticatable
     protected $table = 'signups';
     protected $primaryKey = 'signup_id';
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'profile_picture',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'role_as', 'email_verified_at'];
+
 
     protected $hidden = [
         'password',

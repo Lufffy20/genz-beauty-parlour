@@ -15,7 +15,8 @@
     <script src="{{asset('admin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js')}}"></script>
 
     <!-- Template Javascript -->
-    <script src="{{asset('admin/js/admin.js')}}"></script>
+    <script src="{{ asset('admin/js/main.js') }}"></script>
+
 
     <!-- Dark Mode Toggle -->
  <!-- <script>

@@ -4,10 +4,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<!-- appointment -->
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
-<link rel="stylesheet" href="{{ asset('public/css/bootstrap.min.css') }}">
-
 
 
 <div class="appointment">

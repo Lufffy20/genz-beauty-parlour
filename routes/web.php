@@ -66,7 +66,7 @@ Route::delete('aboutshow/delete/{id}', [AboutController::class, 'destroy'])->nam
 
 //all booking
 Route::get('/allbooking/{id}',[AllbookingController::class,'allbooking']);
-Route::post('/store6',[AllbookingController::class,'store6'])->name('store6');
+Route::post('/store9',[AllbookingController::class,'store9'])->name('store9');
 
 
 // service ni ander service
@@ -173,11 +173,11 @@ Route::get('/verify-code', [Validatecontroller1::class, 'showCodeForm'])->name('
 
 Route::post('/login-user', [Validatecontroller1::class, 'loginUser'])->name('login.user');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    });
-});
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     Route::get('/dashboard', function () {
+//         return view('dashboard');
+//     });
+// });
 
 //for nearest appointment
 Route::get('/nearest-parlors', [ParlorController::class, 'findNearestParlors']);
@@ -199,16 +199,17 @@ Route::get('/pricing',[admincontroller::class,'pricing'])->name('pricing.page');
 Route::get('/customers',[admincontroller::class,'customers'])->name('customers.page');
 Route::get('/settings',[admincontroller::class,'settings'])->name('settings.page');
 Route::get('/logout',[admincontroller::class,'logout'])->name('logout');
-
-});
-//admin1 vendor
-Route::middleware(['vendor.auth'])->group(function () {
 Route::get('/upcominguserview',[Admin1Controller::class,'upcominguserview'])->name('userviewpage');
 Route::get('/dashboard1',[Admin1Controller::class,'dashboard1'])->name('Dashboard1.page');
 Route::get('/newappointments',[Admin1Controller::class,'newappointments'])->name('newppointments.page');
 // Route::get('/addnewservice', [Admin1Controller::class, 'addnewservice'])->name('addnewservice');
 // Route::get('/addnewservices', [Admin1Controller::class, 'addnewservices'])->name('addnewservices');
 Route::resource('blogs', BlogController::class);
+
+});
+//admin1 vendor
+Route::middleware(['vendor.auth'])->group(function () {
+
 });
 
 
@@ -255,7 +256,7 @@ Route::post('/update-payment-status', [BookingController::class, 'updatePaymentS
 Route::post('/generate-order', [AllbookingController::class, 'generateOrder'])->name('generate.order');
 
 // Store Booking Data after Payment
-Route::post('/store-booking', [AllbookingController::class, 'store6'])->name('store6');
+Route::post('/store-booking', [AllbookingController::class, 'store7'])->name('store7');
 
 
 
@@ -311,7 +312,7 @@ Route::get('/showlocation', [Layoutcontroller::class, 'showlocation'])->name('sh
 Route::get('/addnewlocation', [Layoutcontroller::class, 'addnewlocation'])->name('addnewlocation');
 
 // Store a newly created location
-Route::post('store10', [Layoutcontroller::class, 'store10'])->name('store10');
+Route::post('store11', [Layoutcontroller::class, 'store11'])->name('store11');
 
 // Show the form to edit an existing location
 Route::get('locationshow/{location}/edit', [Layoutcontroller::class, 'locationedit'])->name('locationedit');

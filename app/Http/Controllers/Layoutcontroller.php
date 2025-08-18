@@ -228,7 +228,7 @@ class Layoutcontroller extends Controller
             }
     
             
-            public function store10(Request $request) {
+            public function store11(Request $request) {
                 $request->validate([
                     'branch_name' => 'required',
                     'parlour_name' => 'required',

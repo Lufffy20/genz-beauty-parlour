@@ -1,5 +1,20 @@
 @include('layout.header')
+<style>
+   .card.h-100 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* Space between text and button */
+    height: 100%;  /* Make all cards equal height */
+}
 
+.card-body {
+    flex: 1; /* Fill remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;  /* Button always stays at bottom */
+}
+
+</style>
 <!-- Beauty Blog Section -->
 <section class="py-5" style="background-color: #f5f5f5;">
    <div class="container">

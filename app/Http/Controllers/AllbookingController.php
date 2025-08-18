@@ -52,25 +52,27 @@ class AllbookingController extends Controller
     }
 
 
-    public function store6(Request $request)
-    {
-  
-        // $bookingData = json_decode($request->input('cart'), true);
-        $payment_id = $request->input('payment_id');
-
-        $cart = $request->session()->get('cart');
-    
-      
-        $packageIds = [];
-        foreach ($cart as $item) {
-            $packageIds[] = $item['id'];
+    public function store7(Request $request)
+{
+    try {
+        // Get cart (from request if session empty)
+        $cart = $request->session()->get('cart', []);
+        if (empty($cart) && $request->has('cart')) {
+            $cart = json_decode($request->input('cart'), true);
         }
+
+        if (empty($cart)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Cart is empty. Cannot save booking.'
+            ], 400);
+        }
+
+        // Extract package IDs
+        $packageIds = collect($cart)->pluck('id')->toArray();
         $packagestr = implode(',', $packageIds);
 
-        Log::info('Package IDs string:', ['packagestr' => $packagestr]);
-
-    
-
+        // Collect user inputs
         $name = $request->input('name');
         $email = $request->input('email');
         $phonenumber = $request->input('phonenumber');
@@ -78,10 +80,13 @@ class AllbookingController extends Controller
         $time = $request->input('time');
         $date = $request->input('date');
         $message = $request->input('message');
+        $payment_id = $request->input('payment_id');
+
+        // Specialists (can be multiple)
         $specialists = $request->input('specialist_checkbox', []);
-        $specialistStr = implode(',', $specialists); 
-    
-       
+        $specialistStr = is_array($specialists) ? implode(',', $specialists) : '';
+
+        // Save booking
         $booking = new AllBooking();
         $booking->package_id = $packagestr;
         $booking->name = $name;
@@ -95,12 +100,27 @@ class AllbookingController extends Controller
         $booking->status = 'Confirmed';
         $booking->payment_id = $payment_id;
         $booking->save();
-    
+
         return response()->json([
-            'message' => 'Booking data saved successfully',
+            'success' => true,
+            'message' => 'Booking saved successfully',
             'booking_id' => $booking->id,
         ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Booking Save Error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'error' => true,
+            'message' => 'Failed to save booking',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
+
     
     
 

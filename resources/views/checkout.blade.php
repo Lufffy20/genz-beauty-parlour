@@ -7,7 +7,6 @@
             <h2 class="fw-bold">Checkout</h2>
         </div>
 
-        <!-- Booking Form -->
         <div class="card p-4 shadow-sm mb-5">
             <form id="bookingForm">
                 @csrf
@@ -76,23 +75,23 @@
                     </div>
 
                     <div class="col-md-6">
-    <label class="form-label">Specialist</label>
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Select Specialist
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            @foreach($specialists as $specialist)
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="specialist_checkbox[]" id="specialist_{{ $specialist->id }}" value="{{ $specialist->id }}">
-                    <label class="form-check-label" for="specialist_{{ $specialist->id }}">
-                        {{ $specialist->name }} - {{ $specialist->service->service_name ?? 'N/A' }}
-                    </label>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</div>
+                        <label class="form-label">Specialist</label>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select Specialist
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                @foreach($specialists as $specialist)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="specialist_checkbox[]" id="specialist_{{ $specialist->id }}" value="{{ $specialist->id }}">
+                                        <label class="form-check-label" for="specialist_{{ $specialist->id }}">
+                                            {{ $specialist->name }} - {{ $specialist->service->service_name ?? 'N/A' }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="col-12">
                         <label class="form-label">Message</label>
@@ -108,13 +107,10 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-
 <script>
-    
 document.addEventListener("DOMContentLoaded", function () {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartSummary = document.getElementById('cartSummary');
@@ -125,10 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
     cart.forEach(item => {
         const li = document.createElement('li');
         li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = `
-            <span>${item.service_name} - ${item.name}</span>
-            <span>₹${item.price} × ${item.quantity}</span>
-        `;
+        li.innerHTML = `<span>${item.service_name} - ${item.name}</span>
+                        <span>₹${item.price} × ${item.quantity}</span>`;
         cartSummary.appendChild(li);
         total += parseFloat(item.price) * parseInt(item.quantity);
     });
@@ -174,18 +168,23 @@ document.getElementById('pay-button').onclick = function () {
                 formData.append('payment_id', response.razorpay_payment_id);
                 formData.append('cart', cart);
 
-                fetch("{{ route('store6') }}", {
+                fetch("{{ route('store7') }}", {
                     method: "POST",
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: formData
                 })
-                .then(res => res.json())
-                .then(data => {
-                    alert('Booking successful!');
-                    localStorage.removeItem('cart');
-                    window.location.href = "/thank-you";
+                .then(async res => {
+                    const data = await res.json().catch(() => ({}));
+                    if (data.success) {
+                        alert('Booking successful!');
+                        localStorage.removeItem('cart');
+                        window.location.href = "/thank-you";
+                    } else {
+                        console.error('Booking Error:', data);
+                        alert('Booking failed: ' + (data.details || data.message || 'Unknown error'));
+                    }
                 })
                 .catch(error => {
                     console.error('Booking Error:', error);
@@ -197,9 +196,7 @@ document.getElementById('pay-button').onclick = function () {
                 email: formData.get('email'),
                 contact: formData.get('phonenumber')
             },
-            theme: {
-                color: "#007bff"
-            }
+            theme: { color: "#007bff" }
         };
 
         var rzp = new Razorpay(options);
