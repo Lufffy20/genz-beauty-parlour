@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentMail;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Services1;
+use App\Models\Location;
+use App\Models\Package1;
 
 class AppointmentController extends Controller
 {
@@ -230,19 +233,28 @@ public function getAvailableSlots(Request $request)
         }
         
     
-        public function edit($id)
-        {
-            $user = Appointment::find($id);
-            $title = "Edit Appointment";
-            $btn = "Update Appointment";
-        
-            if (is_null($user)) {
-                return redirect('/appointmentview')->with('error', 'Appointment not found');
-            }
-        
-            $url = url('userupdate') . "/" . $id;
-            return view('appointment', compact('user', 'url', 'title', 'btn'));
-        }
+      public function edit($id)
+{
+    $appointment = Appointment::with(['serviceRelation', 'subserviceRelation'])->find($id);
+
+    if (is_null($appointment)) {
+        return redirect('/appointmentview')->with('error', 'Appointment not found');
+    }
+
+    $services = Services1::all(); // For service dropdown
+    $locations = Location::all();
+    
+    // All subservices OR only subservices of the selected service
+    $subservices = Package1::where('service_id', $appointment->select)->get();
+
+    $title = "Edit Appointment";
+    $btn = "Update Appointment";
+    $url = url('userupdate') . "/" . $id;
+
+    return view('appointment', compact('appointment', 'url', 'title', 'btn', 'services', 'locations', 'subservices'));
+}
+
+
         
         public function update($id, Request $request)
         {

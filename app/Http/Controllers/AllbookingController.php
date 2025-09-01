@@ -8,7 +8,7 @@ use App\Models\Package1;
 use App\Models\Specialist;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\DB;
 
 class AllbookingController extends Controller
 {
@@ -97,7 +97,7 @@ class AllbookingController extends Controller
         $booking->date = $date;
         $booking->message = $message;
         $booking->specialist = $specialistStr;
-        $booking->status = 'Confirmed';
+        $booking->status = 'Pending';
         $booking->payment_id = $payment_id;
         $booking->save();
 
@@ -148,11 +148,16 @@ class AllbookingController extends Controller
     }
 
     // Other methods remain the same
-    public function allserviceshow()
+   public function allserviceshow()
 {
-    $allPackages = AllBooking::with(['package', 'specialist'])->paginate(10); // Use paginate instead of get()
+    $allPackages = AllBooking::with(['package', 'specialist'])
+        ->orderByRaw("FIELD(status, 'Pending', 'Approved', 'Done', 'Cancelled')") // New first
+        ->orderBy('created_at', 'desc') // Recent first inside each status
+        ->paginate(10);
+
     return view('allserviceshow', compact('allPackages'));
 }
+
 
 
     public function show($id)
@@ -169,30 +174,50 @@ class AllbookingController extends Controller
         return redirect()->route('\dashboard1')->with('success', 'Booking deleted!');
     }
 
-    public function approve($id) {
-        $booking = AllBooking::findOrFail($id);
-        $booking->status = 'Approved'; // ✅ put in quotes
+public function approve($id)
+{
+    $booking = AllBooking::find($id);
+    if ($booking) {
+        $booking->status = 'Approved'; // ✅ Wrap in quotes
         $booking->save();
-        return back()->with('success', 'Booking approved successfully.');
     }
+
+    return redirect()->back()->with('success', 'Booking Approved');
+}
+
+public function updateStatus2(Request $request, $id)
+{
+    $booking = AllBooking::findOrFail($id);
+    $booking->status = $request->status; // Approved, Done, Cancelled
+    $booking->save();
+
+    return redirect()->back()->with('success', 'Status updated successfully!');
+}
+
     
     
-    
-    public function done($id) {
-        $booking = AllBooking::findOrFail($id);
-        $booking->status = 'Done'; // ✅ put in quotes
+public function done($id)
+{
+    $booking = AllBooking::find($id);
+    if ($booking) {
+        $booking->status = 'Done';
         $booking->save();
-        return back()->with('success', 'Booking marked as done.');
     }
-    
-    
-    public function cancel($id) {
-        $booking = AllBooking::findOrFail($id);
-        $booking->status = 'Cancelled'; // ✅ put in quotes
+
+    return redirect()->back()->with('success', 'Booking marked as Done');
+}
+
+public function cancel($id)
+{
+    $booking = AllBooking::find($id);
+    if ($booking) {
+        $booking->status = 'Cancelled';
         $booking->save();
-        return back()->with('success', 'Booking cancelled.');
     }
-    
+
+    return redirect()->back()->with('success', 'Booking Cancelled');
+}
+
     
     public function trash($id) {
         $booking = AllBooking::findOrFail($id);
@@ -207,8 +232,44 @@ class AllbookingController extends Controller
     
     public function edit($id) {
         $booking = AllBooking::findOrFail($id);
-        return view('admin1.edit', compact('booking'));
+        return view('edit', compact('booking'));
     }
+
+    public function update(Request $request, $id)
+{
+    $booking = AllBooking::findOrFail($id);
+
+    // Validate input
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phonenumber' => 'required|string|max:20',
+        'gender' => 'required|string',
+        'time' => 'required|string',
+        'date' => 'required|date',
+        'message' => 'nullable|string',
+        'specialist_checkbox' => 'nullable|array',
+    ]);
+
+    // Update fields
+    $booking->name = $request->name;
+    $booking->email = $request->email;
+    $booking->phonenumber = $request->phonenumber;
+    $booking->gender = $request->gender;
+    $booking->time = $request->time;
+    $booking->date = $request->date;
+    $booking->message = $request->message;
+
+    // Specialists
+    $specialists = $request->input('specialist_checkbox', []);
+    $booking->specialist = is_array($specialists) ? implode(',', $specialists) : '';
+
+    $booking->save();
+
+    // Redirect back with success message
+    return redirect()->route('allserviceshow')->with('success', 'Booking updated successfully!');
+}
+
 
     public function complatedservices()
 {

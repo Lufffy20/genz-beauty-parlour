@@ -52,8 +52,10 @@
                                 <td>{{$appointment->email}}</td>
                                 <td>{{$appointment->phonenumber}}</td>
                                 <td>{{$appointment->gender}}</td>
-                                <td>{{$appointment->select}}</td>
-                                <td>{{$appointment->subservice}}</td>
+                                <td>{{ $appointment->serviceRelation ? $appointment->serviceRelation->service_name : 'N/A' }}</td>
+                                <td>{{ $appointment->subserviceRelation ? $appointment->subserviceRelation->package_name : 'N/A' }}</td>
+
+
                                 <td>{{$appointment->time}}</td>
                                 <td>{{$appointment->date}}</td>
                                 <td>{{$appointment->message}}</td>

@@ -4,51 +4,60 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-
-
 <div class="appointment">
     <div class="container">
         <div class="row">
             <div class="col-md-12 ">
                 <div class="titlepage text_align_center">
-                    <h2>Make Appointment</h2>
+                    <h2>{{ $title }}</h2>
                     <p>Your perfect beauty day is just one appointment away — glow up time get Appointment now!</p>
-
                 </div>
             </div>
             <div class="col-md-12">
-                <form id="request" class="main_form" action="{{ url('/storedata3') }}" method='POST'>
+                <form id="request" class="main_form" action="{{ $url }}" method="POST">
                     @csrf
                     <div class="row">
+                        <!-- Name -->
                         <div class="col-md-6">
                             <input class="form_control" placeholder="Your name" type="text" name="name"
-                                value="{{ $user->name ?? '' }}">
+                                value="{{ old('name', $appointment->name ?? '') }}">
                             <span class="text-danger">@error('name') {{ $message }} @enderror</span>
                         </div>
+                        
+                        <!-- Email -->
                         <div class="col-md-6">
                             <input class="form_control" placeholder="Email" type="email" name="email"
-                                value="{{ $user->email ?? '' }}">
+                                value="{{ old('email', $appointment->email ?? '') }}">
                             <span class="text-danger">@error('email') {{ $message }} @enderror</span>
                         </div>
+
+                        <!-- Phone -->
                         <div class="col-md-6">
                             <input class="form_control" placeholder="Phone Number" type="tel" name="phonenumber"
-                                value="{{ $user->phonenumber ?? '' }}">
+                                value="{{ old('phonenumber', $appointment->phonenumber ?? '') }}">
                             <span class="text-danger">@error('phonenumber') {{ $message }} @enderror</span>
                         </div>
+
+                        <!-- Gender -->
                         <div class="col-md-6">
                             <select class="form_control" name="gender">
                                 <option value="">Select Gender</option>
-                                <option value="Male" {{ (old('gender', $user->gender ?? '') == 'Male') ? 'selected' : '' }}>Male</option>
-                                <option value="Female" {{ (old('gender', $user->gender ?? '') == 'Female') ? 'selected' : '' }}>Female</option>
-                                <option value="Other" {{ (old('gender', $user->gender ?? '') == 'Other') ? 'selected' : '' }}>Other</option>
+                                <option value="Male" {{ (old('gender', $appointment->gender ?? '') == 'Male') ? 'selected' : '' }}>Male</option>
+                                <option value="Female" {{ (old('gender', $appointment->gender ?? '') == 'Female') ? 'selected' : '' }}>Female</option>
+                                <option value="Other" {{ (old('gender', $appointment->gender ?? '') == 'Other') ? 'selected' : '' }}>Other</option>
                             </select>
                             <span class="text-danger">@error('gender') {{ $message }} @enderror</span>
                         </div>
+
+                        <!-- Service Dropdown -->
                         <div class="col-md-6">
                             <select class="form_control" name="select" id="serviceSelect">
-                                <option value="">Select service</option>
+                                <option value="">Select Service</option>
                                 @foreach ($services as $service)
-                                    <option value="{{ $service->id }}">{{ $service->service_name }}</option>
+                                    <option value="{{ $service->id }}" 
+                                        {{ old('select', $appointment->select ?? '') == $service->id ? 'selected' : '' }}>
+                                        {{ $service->service_name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <span class="text-danger">@error('select') {{ $message }} @enderror</span>
@@ -58,36 +67,55 @@
                         <div class="col-md-6" id="subServiceContainer">
                             <select class="form_control" name="subservice" id="subService">
                                 <option value="">Select a Sub-Service</option>
+                                @if(isset($subservices) && count($subservices) > 0)
+                                    @foreach($subservices as $sub)
+                                        <option value="{{ $sub->id }}" 
+                                            {{ old('subservice', $appointment->subservice ?? '') == $sub->id ? 'selected' : '' }}>
+                                            {{ $sub->package_name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             <span class="text-danger">@error('subservice') {{ $message }} @enderror</span>
-                            <div id="priceDisplay" class="mt-2 text-success" style="font-weight: bold;"></div>
+                            <div id="priceDisplay" class="mt-2 text-success" style="font-weight: bold;">
+                                @if(isset($appointment->price)) Price: ₹{{ $appointment->price }} @endif
+                            </div>
                         </div>
 
+                        <!-- Date -->
                         <div class="col-md-6">
-                            <input type="text" class="form_control" id="my_date_picker" placeholder="Select Date" name="date" value="{{ $user->date ?? '' }}">
+                            <input type="text" class="form_control" id="my_date_picker" placeholder="Select Date" name="date" 
+                                value="{{ old('date', $appointment->date ?? '') }}">
                             <span class="text-danger">@error('date') {{ $message }} @enderror</span>
                         </div>
 
+                        <!-- Time -->
                         <div class="col-md-6">
                             <select class="form_control" name="time">
                                 <option value="">Select time</option>
                                 @foreach (['09:00 AM','09:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','01:00 PM','01:30 PM','02:00 PM','02:30 PM','03:00 PM','03:30 PM','04:00 PM','04:30 PM','05:00 PM'] as $time)
-                                    <option value="{{ $time }}" {{ (old('time', $user->time ?? '') == $time) ? 'selected' : '' }}>{{ $time }}</option>
+                                    <option value="{{ $time }}" {{ (old('time', $appointment->time ?? '') == $time) ? 'selected' : '' }}>{{ $time }}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger">@error('time') {{ $message }} @enderror</span>
                         </div>
-                      
+
+                        <!-- Message -->
                         <div class="col-md-12">
-                            <textarea class="textarea" placeholder="Message" name="message">{{ $user->message ?? '' }}</textarea>
+                            <textarea class="textarea" placeholder="Message" name="message">{{ old('message', $appointment->message ?? '') }}</textarea>
                             <span class="text-danger">@error('message') {{ $message }} @enderror</span>
                         </div>
 
-                        <!-- Hidden price input -->
-                        <input type="hidden" name="price" id="priceInput">
+                        <!-- Hidden price -->
+                        <input type="hidden" name="price" id="priceInput" value="{{ $appointment->price ?? '' }}">
 
+                        <!-- Button -->
                         <div class="col-md-12">
-                            <button type="button" class="send_btn" id="payBtn">Book & Pay Now</button>
+                            @if($btn === "Book & Pay Now")
+                                <button type="button" class="send_btn" id="payBtn">{{ $btn }}</button>
+                            @else
+                                <button type="submit" class="send_btn">{{ $btn }}</button>
+                            @endif
                         </div>
                     </div>
                 </form>
@@ -160,23 +188,17 @@
 
 <!-- JS -->
 <script>
-  function updateMap(lat, lng) {
-    const mapUrl = `https://maps.google.com/?q=${lat},${lng}&output=embed`;
-    document.getElementById('footerMap').src = mapUrl;
+    function updateMap(lat, lng) {
+        const mapUrl = `https://maps.google.com/?q=${lat},${lng}&output=embed`;
+        document.getElementById('footerMap').src = mapUrl;
 
-    // Scroll to the map smoothly
-    const mapSection = document.getElementById('footerMap');
-    if (mapSection) {
-      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll to the map smoothly
+        const mapSection = document.getElementById('footerMap');
+        if (mapSection) {
+            mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
-  }
 </script>
-
-
-
-
-
-
 
 <!-- Script to load sub-services with price -->
 <script>
@@ -243,6 +265,12 @@
             return;
         }
 
+        // ✅ Check if this is an update (payment already done)
+        if ($('#isEdit').val() === '1') {
+            $('#request').submit(); // Directly submit without Razorpay
+            return;
+        }
+
         let amountInPaise = Math.round(subServicePrice * 100);
 
         $.ajax({
@@ -297,35 +325,35 @@
 
 <script>
     $('#my_date_picker').on('change', function () {
-    let selectedDate = $(this).val();
-    let serviceId = $('#serviceSelect').val(); // optional: filter by service
-    if (selectedDate) {
-        $.ajax({
-            url: '/get-available-slots',
-            method: 'GET',
-            data: {
-                date: selectedDate,
-                service_id: serviceId // optional
-            },
-            success: function (response) {
-                let timeSelect = $('select[name="time"]');
-                timeSelect.empty();
-                if (response.available_slots.length > 0) {
-                    timeSelect.append('<option value="">Select time</option>');
-                    response.available_slots.forEach(slot => {
-                        timeSelect.append(`<option value="${slot}">${slot}</option>`);
-                    });
-                } else {
-                    timeSelect.append('<option value="">No slots available</option>');
+        let selectedDate = $(this).val();
+        let serviceId = $('#serviceSelect').val(); // optional: filter by service
+        if (selectedDate) {
+            $.ajax({
+                url: '/get-available-slots',
+                method: 'GET',
+                data: {
+                    date: selectedDate,
+                    service_id: serviceId // optional
+                },
+                success: function (response) {
+                    let timeSelect = $('select[name="time"]');
+                    timeSelect.empty();
+                    if (response.available_slots.length > 0) {
+                        timeSelect.append('<option value="">Select time</option>');
+                        response.available_slots.forEach(slot => {
+                            timeSelect.append(`<option value="${slot}">${slot}</option>`);
+                        });
+                    } else {
+                        timeSelect.append('<option value="">No slots available</option>');
+                    }
+                },
+                error: function () {
+                    alert('Error fetching available slots.');
                 }
-            },
-            error: function () {
-                alert('Error fetching available slots.');
-            }
-        });
-    }
-});
-
+            });
+        }
+    });
 </script>
+
 
 @include('layout.footer')

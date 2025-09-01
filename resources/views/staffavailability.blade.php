@@ -1,68 +1,23 @@
 @extends('admin1.main')
 @section('main-section')
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Specialists</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <style>
-        body {
-            background-color: #f4f7fc;
-            font-family: 'Poppins', sans-serif;
-        }
-        .header {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .table-container {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .table th {
-            background: #007bff;
-            color: white;
-            padding: 12px;
-        }
-        .table tbody tr:hover {
-            background: #f1f3f8;
-            transition: 0.3s ease-in-out;
-        }
-        .img-thumbnail {
-            border-radius: 10px;
-            transition: transform 0.3s ease-in-out;
-        }
-        .img-thumbnail:hover {
-            transform: scale(1.1);
-        }
-        .btn-sm {
-            font-size: 14px;
-            padding: 5px 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container my-4">
-        <div class="header">
-            <h2 class="fw-bold">All Specialists</h2>
-        </div>
 
-        <div class="table-container">
-            <div class="d-flex justify-content-between mb-3">
-                <a href="{{ route('specialist.add') }}" class="btn btn-primary shadow-sm px-3 py-2">
-                    <i class="bi bi-plus-circle"></i> Add Specialist
-                </a>
-            </div>
+<h1 class="mt-4">All Specialists</h1>
+
+<div class="container-fluid mt-4 mb-2">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+       
+        <form action="" method="GET" class="d-flex flex-grow-1">
+            <input type="search" value="{{ request('search') }}" name="search" class="form-control me-2" placeholder="Search name and email">
+            <button class="btn btn-primary me-2" type="submit">Search</button>
+            <a href="" class="btn btn-secondary">Reset</a>
+        </form>
+
+        <div>
+            <a href="" class="btn btn-success me-2">Add Contact</a>
+            <a href="" class="btn btn-danger">Go To Trash</a>
+        </div>
+    </div>
+</div>
 
             <div class="table-responsive">
                 <table class="table table-bordered table-striped align-middle">

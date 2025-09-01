@@ -28,6 +28,8 @@ use App\Models\Userdetail;
 use App\Http\Controllers\LocationController;
 use App\Models\Location; 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+
 
 
 //pages
@@ -142,8 +144,13 @@ Route::get('/appointment/done/{id}', [AppointmentController::class, 'doneAppoint
 Route::get('/appointment/cancel/{id}', [AppointmentController::class, 'cancelAppointment'])->name('usercancel');
 
 //addserviceshow delte
-Route::get('/userdelete1/{id}', [ServiceController::class, 'destroy'])->name('userdel1');
-Route::get('userupdate1/{id}', [ServiceController::class, 'update'])->name('userupdate1');
+Route::get('/userdelete2/{id}', [ServiceController::class, 'destroy'])->name('userdel2');
+// Show edit form
+Route::get('edit-package/{id}', [ServiceController::class, 'edit'])->name('edit.package');
+
+// Update package
+Route::put('update-package/{id}', [ServiceController::class, 'update'])->name('update.package');
+
 
 
 //allserviceshow
@@ -200,7 +207,6 @@ Route::get('/customers',[admincontroller::class,'customers'])->name('customers.p
 Route::get('/settings',[admincontroller::class,'settings'])->name('settings.page');
 Route::get('/logout',[admincontroller::class,'logout'])->name('logout');
 Route::get('/upcominguserview',[Admin1Controller::class,'upcominguserview'])->name('userviewpage');
-Route::get('/dashboard1',[Admin1Controller::class,'dashboard1'])->name('Dashboard1.page');
 Route::get('/newappointments',[Admin1Controller::class,'newappointments'])->name('newppointments.page');
 // Route::get('/addnewservice', [Admin1Controller::class, 'addnewservice'])->name('addnewservice');
 // Route::get('/addnewservices', [Admin1Controller::class, 'addnewservices'])->name('addnewservices');
@@ -296,9 +302,12 @@ Route::get('/blog/{id}', [BlogController::class, 'showDetail'])->name('blog.deta
 Route::get('/appointment1/approve/{id}', [AllbookingController::class, 'approve'])->name('userapprove1');
 Route::get('/appointment1/done/{id}', [AllbookingController::class, 'done'])->name('userdone1');
 Route::get('/appointment1/cancel/{id}', [AllbookingController::class, 'cancel'])->name('usercancel1');
+Route::put('/booking/status/{id}', [AllbookingController::class, 'updateStatus2'])->name('updateStatus2');
+
 Route::get('/appointment1/delete/{id}', [AllbookingController::class, 'trash'])->name('userdel1');
 Route::get('package/delete1/{id}', [AllbookingController::class, 'delete'])->name('userdelete1');
 Route::get('/appointment1/edit/{id}', [AllbookingController::class, 'edit'])->name('useredit1');
+Route::post('/appointment1/update/{id}', [AllbookingController::class, 'update'])->name('userupdate1');
 Route::get('/complatedservices', [AllbookingController::class, 'complatedservices'])->name('done.bookings1');
 Route::get('/cancelledservices', [AllbookingController::class, 'cancelledservices'])->name('cancelled.bookings1');
 
@@ -341,3 +350,4 @@ Route::get('/resend-otp', [AuthController::class, 'resendOtp']);
 
 //newsleter 
 Route::post('/subscribe-newsletter', [NewsletterController::class, 'store12'])->name('newsletter.store12');
+Route::get('/dashboard1',[DashboardController::class,'dashboard1'])->name('Dashboard1.page');

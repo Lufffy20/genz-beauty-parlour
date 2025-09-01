@@ -39,11 +39,13 @@ public function facialpackage()
 
     
     // Show specialists list
-    public function addspecialistshow()
-    {
-        $specialists = Specialist::all();
-        return view('addspecialistshow', compact('specialists'));
-    }
+    // SpecialistController / PackageController1
+public function addspecialistshow()
+{
+    $specialists = Specialist::orderBy('id', 'desc')->paginate(10); // 10 per page
+    return view('addspecialistshow', compact('specialists'));
+}
+
     
     // Show add specialist form
     public function addSpecialist()
@@ -93,26 +95,31 @@ public function facialpackage()
 
 
      // Show edit form
-     public function edit($id)
-     {
-         $specialist = Specialist::findOrFail($id);
-         return view('specialists.edit', compact('specialist'));
-     }
+    // Show edit form
+public function edit($id)
+{
+    $specialist = Specialist::findOrFail($id);
+    $services = Services1::all(); // fetch all services
+    return view('edit3', compact('specialist', 'services'));
+}
+
+
  
-     // Update specialist
-     public function update(Request $request, $id)
-     {
-         $request->validate([
-             'name' => 'required',
-             'specialization' => 'required',
-             'experience' => 'required|integer',
-         ]);
- 
-         $specialist = Specialist::findOrFail($id);
-         $specialist->update($request->all());
- 
-         return redirect()->route('addSpecialist')->with('success', 'Specialist updated successfully.');
-     }
+    public function update(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required',
+        'specialization' => 'required',
+        'experience' => 'required|integer',
+    ]);
+
+    $specialist = Specialist::findOrFail($id);
+    $specialist->update($request->all());
+
+    return redirect()->route('addspecialistshow.page')->with('success', 'Specialist updated successfully.');
+
+}
+
  
      // Delete specialist
      public function destroy($id)

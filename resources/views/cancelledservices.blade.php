@@ -1,14 +1,14 @@
 @extends('admin1.main')
 @section('main-section')
 
-<h1 class="mt-4">All Packages</h1>
+<h1 class="mt-4">All Appointments</h1>
 
 <div class="container-fluid mt-4 mb-2">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
         <form action="" method="GET" class="d-flex flex-grow-1">
             <input type="search" value="{{ request('search') }}" name="search" class="form-control me-2" placeholder="Search name and email">
             <button class="btn btn-primary me-2" type="submit">Search</button>
-            <a href="" class="btn btn-secondary">Reset</a>
+            <a href="{{ url()->current() }}" class="btn btn-secondary">Reset</a>
         </form>
     </div>
 </div>
@@ -70,17 +70,22 @@
 
                             {{-- Status Badge --}}
                             <td>
-                                @if($service->status == 'Approved')
-                                    <span class="badge bg-success">{{ $service->status }}</span>
-                                @elseif($service->status == 'Done')
-                                    <span class="badge bg-primary">{{ $service->status }}</span>
-                                @elseif($service->status == 'Pending')
-                                    <span class="badge bg-warning text-dark">{{ $service->status }}</span>
-                                @elseif($service->status == 'Cancelled')
-                                    <span class="badge bg-danger">{{ $service->status }}</span>
-                                @else
-                                    <span class="badge bg-secondary">{{ $service->status }}</span>
-                                @endif
+                                @switch($service->status)
+                                    @case('Approved')
+                                        <span class="badge bg-success">{{ $service->status }}</span>
+                                        @break
+                                    @case('Done')
+                                        <span class="badge bg-primary">{{ $service->status }}</span>
+                                        @break
+                                    @case('Pending')
+                                        <span class="badge bg-warning text-dark">{{ $service->status }}</span>
+                                        @break
+                                    @case('Cancelled')
+                                        <span class="badge bg-danger">{{ $service->status }}</span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">{{ $service->status }}</span>
+                                @endswitch
                             </td>
 
                             <td>{{ \Carbon\Carbon::parse($service->created_at)->format('d-M-Y') }}</td>
@@ -88,9 +93,9 @@
 
                             {{-- Action Buttons --}}
                             <td class="d-flex flex-wrap gap-1">
-                                <a href="{{ route('userapprove', $service->id) }}" class="btn btn-success btn-sm">Approve</a>
-                                <a href="{{ route('userdone', $service->id) }}" class="btn btn-info btn-sm">Done</a>
-                                <a href="{{ route('usercancel', $service->id) }}" class="btn btn-secondary btn-sm">Cancel</a>
+                                <a href="{{ route('userapprove1', $service->id) }}" class="btn btn-success btn-sm">Approve</a>
+                                <a href="{{ route('userdone1', $service->id) }}" class="btn btn-info btn-sm">Done</a>
+                                <a href="{{ route('usercancel1', $service->id) }}" class="btn btn-secondary btn-sm">Cancel</a>
                             </td>
                         </tr>
                     @endforeach

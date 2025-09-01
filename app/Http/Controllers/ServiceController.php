@@ -38,37 +38,57 @@ class ServiceController extends Controller
     }
     
 
-    public function edit($id)
-    {
-        $services = Package1::find($id);
-        $title = "Edit Package";
-        $btn = "Update Package";
-        
-        if (is_null($services)) {
-            return redirect('/addserviceshow');
-        } else {
-            $url = url('userupdate1') . "/" . $id;
-            $data = compact('services', 'url', 'title', 'btn'); // 'services' passed instead of 'user'
-            return view('/addnewservice')->with($data);
-        }
-    }
-    
+public function edit($id)
+{
+    $package = Package1::find($id);
 
-    public function update($id, Request $request)
-    {
-        $services = Package1::find($id);
-        if ($services) {
-            $services->service_name = $request->input('service_name');
-            $services->images = $request->input('images');
-            $services->description = $request->input('description');
-            $services->price = $request->input('price'); // Price field added
-            $services->save();
-            
-            return redirect()->back()->with('success', 'Package updated successfully.');
-        }
-    
-        return redirect()->back()->with('error', 'Package not found.');
+    if (!$package) {
+        return redirect('/addserviceshow');
     }
+
+    $services = Services1::all(); // must pass for dropdown
+    $title = "Edit Package";
+    $btn = "Update Package";
+    $url = route('update.package', ['id' => $id]);
+
+    return view('addnewservice', compact('package', 'services', 'title', 'btn', 'url'));
+}
+
+
+
+public function update($id, Request $request)
+{
+    $package = Package1::find($id);
     
+    if (!$package) {
+        return redirect()->route('all.packages')->with('error', 'Package not found.');
+    }
+
+    // Validation
+    $request->validate([
+        'package_name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric',
+        'images' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+    ]);
+
+    // Update fields
+    $package->package_name = $request->package_name;
+    $package->description = $request->description;
+    $package->price = $request->price;
+
+    // Handle image upload
+    if ($request->hasFile('images')) {
+        $imageName = time() . '.' . $request->images->extension();
+        $request->images->move(public_path('images'), $imageName);
+        $package->images = $imageName;
+    }
+
+    $package->save();
+
+    // Redirect to packages listing page after update
+    return redirect()->route('addservicesshow.page')->with('success', 'Package updated successfully.');
+}
+
 
 }
