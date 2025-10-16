@@ -110,7 +110,7 @@
             <div class="alert-success">{{ session('success') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('store6') }}" id="booking-form">
+        <form method="POST" action="{{ route('store7') }}" id="booking-form">
     @csrf
     <input type="hidden" name="package_id" value="{{ $package->id }}">
 

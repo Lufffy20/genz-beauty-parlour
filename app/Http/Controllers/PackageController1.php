@@ -92,9 +92,6 @@ public function addspecialistshow()
     }
 
 
-
-
-     // Show edit form
     // Show edit form
 public function edit($id)
 {
